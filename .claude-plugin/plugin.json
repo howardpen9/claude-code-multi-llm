@@ -1,0 +1,7 @@
+{
+  "name": "multi-llm-toolkit",
+  "description": "Multi-LLM analysis toolkit for Claude Code — cross-check with Codex, Kimi, and Gemini CLIs. Includes structured analysis commands and an auto-routing skill.",
+  "author": {
+    "name": "smartchoice"
+  }
+}
