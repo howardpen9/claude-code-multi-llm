@@ -36,9 +36,9 @@ You (Claude) are BOTH a participant AND the judge. Be transparent about it.
 
 Run in parallel:
 ```bash
-which codex 2>/dev/null && echo "OK" || echo "NOT_FOUND"
-which kimi 2>/dev/null || ls ~/.local/bin/kimi 2>/dev/null && echo "OK" || echo "NOT_FOUND"
-which gemini 2>/dev/null && echo "OK" || echo "NOT_FOUND"
+which codex 2>/dev/null && echo "CODEX_OK" || echo "CODEX_NOT_FOUND"
+(which kimi 2>/dev/null || ls ~/.local/bin/kimi 2>/dev/null) && echo "KIMI_OK" || echo "KIMI_NOT_FOUND"
+which gemini 2>/dev/null && echo "GEMINI_OK" || echo "GEMINI_NOT_FOUND"
 ```
 
 At least 1 external CLI must be found. If none, tell the user to install one.
@@ -51,9 +51,9 @@ Craft a self-contained analysis prompt:
 - One clear question or analysis request
 - End with: "Be specific. Cite line numbers where relevant."
 
-Write the prompt to a temp file:
+Write the prompt to a DETERMINISTIC temp file path:
 ```bash
-PROMPT_FILE=$(mktemp /tmp/multi-llm-XXXXX.txt)
+PROMPT_FILE="/tmp/multi-llm-prompt.txt"
 cat > "$PROMPT_FILE" << 'PROMPT_EOF'
 <your crafted prompt>
 PROMPT_EOF
@@ -63,23 +63,25 @@ PROMPT_EOF
 
 Launch ALL available CLIs in parallel using the Agent tool (single message, multiple agents).
 
+Each Agent must use the EXACT path `/tmp/multi-llm-prompt.txt` to read the shared prompt.
+
 **Agent A — Codex CLI (if available):**
 ```bash
 # Codex MUST run inside a git repo. Find one:
 GIT_DIR=$(git rev-parse --show-toplevel 2>/dev/null || echo "/tmp")
-cd "$GIT_DIR" && codex exec "$(cat /tmp/multi-llm-XXXXX.txt)" 2>&1
+cd "$GIT_DIR" && codex exec "$(cat /tmp/multi-llm-prompt.txt)" 2>&1
 ```
 
 **Agent B — Kimi Code CLI (if available):**
 ```bash
 # Kimi may be at ~/.local/bin/kimi — use full path as fallback
 KIMI_BIN=$(which kimi 2>/dev/null || echo "$HOME/.local/bin/kimi")
-"$KIMI_BIN" -p "$(cat /tmp/multi-llm-XXXXX.txt)" --print --final-message-only 2>&1
+"$KIMI_BIN" -p "$(cat /tmp/multi-llm-prompt.txt)" --print --final-message-only 2>&1
 ```
 
 **Agent C — Gemini CLI (if available):**
 ```bash
-gemini -p "$(cat /tmp/multi-llm-XXXXX.txt)" 2>&1
+gemini -p "$(cat /tmp/multi-llm-prompt.txt)" 2>&1
 ```
 
 **Simultaneously — Your Own Analysis:**

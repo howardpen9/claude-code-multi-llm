@@ -10,7 +10,7 @@ You are performing a systematic security audit.
 
 Audit: $ARGUMENTS
 
-If no target, audit files changed since last commit: `git diff --name-only HEAD~1`
+If no target, audit files changed since last commit: `git diff --name-only HEAD~1 2>/dev/null || git ls-files`
 
 ## OWASP Top 10 Checklist
 

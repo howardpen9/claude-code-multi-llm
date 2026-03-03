@@ -1,6 +1,6 @@
 ---
 description: Systematic root-cause analysis with hypothesis tracking
-allowed-tools: Read, Grep, Glob, Bash(git *), Bash(npm *), Bash(node *), Bash(python *), Agent
+allowed-tools: Read, Grep, Glob, Bash(git *), Agent
 argument-hint: [bug description or error message]
 ---
 

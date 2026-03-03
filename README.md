@@ -37,7 +37,7 @@ At least one external coding CLI installed:
 |-----|---------|-------|
 | [Codex CLI](https://github.com/openai/codex) | `npm install -g @openai/codex` | OpenAI GPT/O3 |
 | [Kimi Code](https://github.com/MoonshotAI/kimi-cli) | `uv tool install kimi-cli` | Moonshot Kimi |
-| [Gemini CLI](https://github.com/google-gemini/gemini-cli) | `npm install -g @anthropic-ai/gemini-cli` | Google Gemini |
+| [Gemini CLI](https://github.com/google-gemini/gemini-cli) | `npm install -g @google/gemini-cli` | Google Gemini |
 
 Each CLI requires its own API key configured separately.
 
