@@ -245,6 +245,55 @@ A: Keys stay local. The MCP server runs as a local process — nothing is sent t
 **Q: Can I use this without any API keys?**
 A: Yes — install CLI tools and use `cli_ask` / `/multi-llm` with subscription credits only. API keys are only needed for `ask` / `multi_ask`.
 
+## Roadmap & Open Questions
+
+### Honest Status
+
+The current router is a **regex-based heuristic** — it matches keywords like "translate" or "debug" to guess task complexity. This works for obvious cases but has clear limitations:
+
+- We haven't validated whether Claude Code actually follows the `analysis-router` SKILL.md instructions to delegate tasks
+- Savings numbers (60-98%) are **theoretical** — calculated from pricing math, not measured from real sessions
+- The keyword classifier can misroute: "debug this simple typo" shouldn't go to ADVANCED tier
+- We don't yet understand Claude Code's internal decision-making around MCP tool usage
+
+### Research Needed
+
+| Question | Why It Matters | How to Test |
+|----------|---------------|-------------|
+| Does Claude actually call `ask`/`cli_ask` when prompted by SKILL.md? | If not, the whole routing layer is unused | Log MCP tool calls across 50+ real sessions |
+| How much context does Claude send to MCP tools? | Affects actual token cost | Capture input/output token counts per call |
+| Is regex classification accurate enough? | Misroutes waste money or quality | Compare regex tier vs human-labeled tier on 200 prompts |
+| What's the real-world savings vs theoretical? | Need honest numbers, not marketing | A/B test: same tasks with and without toolkit |
+| When does Claude choose to handle directly vs delegate? | Understanding the decision boundary | Analyze session logs for delegation patterns |
+
+### Planned Improvements
+
+**Short-term (v2026.4)**
+- [ ] Session-level token logging — capture actual MCP tool call frequency and token counts
+- [ ] Real-world benchmark suite — 20 common dev tasks, measure actual vs baseline cost
+- [ ] Smarter classifier — consider using a cheap LLM (Flash-Lite) to classify instead of regex
+- [ ] Provider expansion — DeepSeek, Mistral
+
+**Medium-term**
+- [ ] A/B measurement framework — run same prompts with/without toolkit, compare cost + quality
+- [ ] Claude Code behavior study — understand when/why Claude decides to use MCP tools
+- [ ] Adaptive routing — learn from past requests which model performs best per task type
+- [ ] Quality scoring — not just cheapest, but cheapest-that-meets-quality-threshold
+
+**Long-term vision**
+- [ ] Self-improving router — use cost_report data to retrain routing decisions
+- [ ] Multi-turn context awareness — route based on conversation state, not just single prompt
+- [ ] Community benchmarks — shared dataset of task → model → quality scores
+
+### Contributing
+
+The biggest help right now is **real-world usage data**. If you use this toolkit, we'd love to know:
+- Which tools you actually use most (`cli_ask`? `ask`? slash commands?)
+- Cases where routing made the wrong choice
+- Your actual savings numbers from `cost_report`
+
+Open an issue or PR at [github.com/howardpen9/claude-code-multi-llm](https://github.com/howardpen9/claude-code-multi-llm).
+
 ## Inspired By
 
 - [PAL MCP Server](https://github.com/BeehiveInnovations/pal-mcp-server) — Provider abstraction, multi-model orchestration

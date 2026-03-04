@@ -243,6 +243,55 @@ A：Key 只在本地使用。MCP Server 作為本地程序運行 — 除了 LLM 
 **Q：可以不用任何 API Key 嗎？**
 A：可以 — 安裝 CLI 工具後，只用 `cli_ask` / `/multi-llm` 搭配訂閱額度即可。API Key 只有 `ask` / `multi_ask` 才需要。
 
+## 路線圖與待驗證問題
+
+### 誠實現況
+
+目前的路由器是基於 **regex 關鍵字比對** — 偵測到 "translate" 就分 BASIC、"debug" 就分 ADVANCED。顯而易見的情況可以正確處理，但有明確的局限：
+
+- 我們尚未驗證 Claude Code 是否真的會根據 `analysis-router` SKILL.md 的指示去分派任務
+- 節省數字 (60-98%) 是**理論計算** — 基於定價數學，不是從真實 session 量測的
+- 關鍵字分類器會誤判：「debug 這個簡單 typo」不應該走 ADVANCED 等級
+- 我們還不了解 Claude Code 內部如何決定要不要使用 MCP 工具
+
+### 需要研究的問題
+
+| 問題 | 為什麼重要 | 如何測試 |
+|------|-----------|---------|
+| Claude 真的會在 SKILL.md 的引導下呼叫 `ask`/`cli_ask` 嗎？ | 如果不會，整個路由層都沒有用 | 紀錄 50+ 次真實 session 的 MCP 工具呼叫 |
+| Claude 送多少 context 給 MCP 工具？ | 影響實際 Token 費用 | 擷取每次呼叫的 input/output token 數 |
+| Regex 分類夠準嗎？ | 誤路由會浪費錢或品質 | 用 200 個 prompt 比較 regex 等級 vs 人工標註等級 |
+| 真實節省 vs 理論節省差多少？ | 需要誠實的數字，不是行銷數字 | A/B 測試：同樣任務有/沒有 toolkit 的費用比較 |
+| Claude 什麼時候選擇自己處理 vs 分派？ | 理解決策邊界 | 分析 session log 的分派模式 |
+
+### 計劃改進
+
+**短期 (v2026.4)**
+- [ ] Session 層級 Token 紀錄 — 擷取 MCP 工具實際呼叫頻率和 Token 用量
+- [ ] 真實場景 benchmark — 20 個常見開發任務，量測實際 vs 基準費用
+- [ ] 更聰明的分類器 — 考慮用便宜 LLM (Flash-Lite) 做分類取代 regex
+- [ ] 擴充供應商 — DeepSeek、Mistral
+
+**中期**
+- [ ] A/B 量測框架 — 同樣的 prompt 有/無 toolkit，比較費用 + 品質
+- [ ] Claude Code 行為研究 — 理解 Claude 何時/為何決定使用 MCP 工具
+- [ ] 自適應路由 — 從歷史請求學習哪個模型在哪種任務表現最好
+- [ ] 品質評分 — 不只選最便宜，而是「夠品質的最便宜」
+
+**長期願景**
+- [ ] 自我改進路由 — 用 cost_report 資料回訓路由決策
+- [ ] 多輪對話感知 — 根據對話狀態路由，不只看單一 prompt
+- [ ] 社群 benchmark — 共享的「任務 → 模型 → 品質分數」資料集
+
+### 參與貢獻
+
+目前最需要的是**真實使用數據**。如果你有使用這個 toolkit，我們想知道：
+- 你最常用哪些工具（`cli_ask`？`ask`？斜線指令？）
+- 路由判斷錯誤的案例
+- 你從 `cost_report` 看到的實際節省數字
+
+歡迎到 [github.com/howardpen9/claude-code-multi-llm](https://github.com/howardpen9/claude-code-multi-llm) 開 issue 或 PR。
+
 ## 靈感來源
 
 - [PAL MCP Server](https://github.com/BeehiveInnovations/pal-mcp-server) — Provider 抽象層、多模型編排
