@@ -29,8 +29,20 @@
     "test:all": "vitest run && bash tests/validate-commands.sh && bash tests/smoke-test.sh",
     "benchmark": "bash tests/run-benchmark.sh",
     "lint": "bash tests/validate-commands.sh",
-    "prepublishOnly": "npm run build",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run test && npm run build",
     "postinstall": "node bin/postinstall.js || true"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/howardpen9/claude-code-multi-llm.git"
+  },
+  "homepage": "https://github.com/howardpen9/claude-code-multi-llm#readme",
+  "bugs": {
+    "url": "https://github.com/howardpen9/claude-code-multi-llm/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.0",
@@ -44,14 +56,6 @@
     "typescript": "^5.7.0",
     "vitest": "^3.0.0"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/howardpen9/claude-code-multi-llm"
-  },
-  "homepage": "https://github.com/howardpen9/claude-code-multi-llm#readme",
-  "bugs": {
-    "url": "https://github.com/howardpen9/claude-code-multi-llm/issues"
-  },
   "author": "smartchoice",
   "license": "MIT",
   "keywords": [
@@ -61,8 +65,10 @@
     "claude-code",
     "cost-optimization",
     "multi-llm",
+    "openai",
+    "gemini",
     "codex",
     "kimi",
-    "gemini"
+    "model-context-protocol"
   ]
 }

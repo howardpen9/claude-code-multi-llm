@@ -7,6 +7,42 @@ on:
     branches: [main]
 
 jobs:
+  check:
+    name: Typecheck, Test & Build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20, 22]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Verify dist output
+        run: |
+          test -f dist/index.js || (echo "dist/index.js missing" && exit 1)
+          test -f dist/router.js || (echo "dist/router.js missing" && exit 1)
+          test -f dist/cost-tracker.js || (echo "dist/cost-tracker.js missing" && exit 1)
+          test ! -f dist/router.test.js || (echo "test file leaked to dist" && exit 1)
+          echo "Build output verified"
+
   validate:
     name: Validate Commands & Structure
     runs-on: ubuntu-latest
@@ -86,7 +122,7 @@ jobs:
 
   publish:
     name: Publish to npm
-    needs: [validate, lint, package]
+    needs: [check, validate, lint, package]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
     permissions:
@@ -98,6 +134,12 @@ jobs:
         with:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
 
       - name: Publish
         run: npm publish --access public
