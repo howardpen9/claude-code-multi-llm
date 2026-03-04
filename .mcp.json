@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "multi-llm": {
+      "command": "npx",
+      "args": ["tsx", "src/index.ts"],
+      "env": {
+        "OPENAI_API_KEY": "${OPENAI_API_KEY}",
+        "GOOGLE_API_KEY": "${GOOGLE_API_KEY}"
+      }
+    }
+  }
+}

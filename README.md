@@ -2,15 +2,30 @@
 
 **English** | [繁體中文](./README.zh-TW.md)
 
-A Claude Code plugin that adds multi-LLM cross-checking and structured analysis commands. Spawn Codex (OpenAI), Kimi (Moonshot), and Gemini (Google) CLIs in parallel, then compare perspectives.
+Save tokens by routing subtasks to cheaper models. Claude Code stays as the top-level brain — simple tasks get delegated to Gemini Flash-Lite ($0.10/M) or GPT-4.1-mini ($0.40/M) instead of using Opus ($25/M output) for everything.
 
-## What's Inside
+## Two Modes
 
-### Commands (user-invoked via `/command-name`)
+### MCP Server (API routing — fast, cheap)
+
+6 MCP tools that let Claude Code delegate to cheaper LLMs via API:
+
+| Tool | Description |
+|------|-------------|
+| `ask` | Route a prompt to the cheapest capable model |
+| `multi_ask` | Query multiple models in parallel, compare responses |
+| `list_models` | Show available models with pricing |
+| `cost_report` | Spending analytics + savings vs Opus baseline |
+| `route_explain` | Debug: explain routing decision without calling any LLM |
+| `configure` | Adjust router settings for this session |
+
+### Slash Commands (CLI spawning — deep analysis)
+
+9 commands for structured analysis and multi-LLM cross-checking:
 
 | Command | Description |
 |---------|-------------|
-| `/multi-llm` | Parallel multi-LLM analysis — spawn external CLIs, compare with Claude |
+| `/multi-llm` | Parallel multi-LLM analysis — spawn Codex, Kimi, Gemini CLIs |
 | `/thinkdeep` | Deep reasoning with confidence tracking |
 | `/consensus` | Multi-perspective debate (FOR / AGAINST / NEUTRAL) |
 | `/precommit` | Pre-commit review of staged changes |
@@ -20,93 +35,99 @@ A Claude Code plugin that adds multi-LLM cross-checking and structured analysis 
 | `/challenge` | Devil's advocate — challenge assumptions |
 | `/apilookup` | Version-aware API/SDK documentation lookup |
 
-### Skill (auto-triggered by Claude)
+## Setup
 
-**analysis-router** — Automatically classifies tasks into tiers:
-
-| Tier | When | Action |
-|------|------|--------|
-| 1 | Simple/obvious | Just answer |
-| 2 | Needs rigor | Auto-apply structured methodology |
-| 3 | Genuinely unsure | **Suggest** multi-LLM to user (asks first) |
-| 4 | Big decision | Structured debate |
-
-## Prerequisites
-
-At least one external coding CLI installed:
-
-| CLI | Install | Model |
-|-----|---------|-------|
-| [Codex CLI](https://github.com/openai/codex) | `npm install -g @openai/codex` | OpenAI GPT/O3 |
-| [Kimi Code](https://github.com/MoonshotAI/kimi-cli) | `uv tool install kimi-cli` | Moonshot Kimi |
-| [Gemini CLI](https://github.com/google-gemini/gemini-cli) | `npm install -g @google/gemini-cli` | Google Gemini |
-
-Each CLI requires its own API key configured separately.
-
-## Installation
-
-### Option A: Development mode (quick test)
+### 1. Install
 
 ```bash
 git clone https://github.com/<your-username>/claude-code-multi-llm.git
-claude --plugin-dir ./claude-code-multi-llm
+cd claude-code-multi-llm
+npm install && npm run build
 ```
 
-### Option B: Copy commands only (no plugin needed)
+### 2. Configure API Keys
 
 ```bash
-git clone https://github.com/<your-username>/claude-code-multi-llm.git
-cp claude-code-multi-llm/commands/*.md ~/.claude/commands/
+cp .env.example .env
+# Edit .env with your API keys (at least one required)
 ```
 
-This gives you the slash commands without the auto-routing skill.
+### 3. Connect to Claude Code
 
-## Usage
+Add to your project's `.mcp.json`:
 
-### Manual commands
+```json
+{
+  "mcpServers": {
+    "multi-llm": {
+      "command": "node",
+      "args": ["/path/to/claude-code-multi-llm/dist/index.js"],
+      "env": {
+        "OPENAI_API_KEY": "sk-...",
+        "GOOGLE_API_KEY": "AI..."
+      }
+    }
+  }
+}
+```
+
+Or use npx after publishing:
+
+```json
+{
+  "mcpServers": {
+    "multi-llm": {
+      "command": "npx",
+      "args": ["-y", "claude-code-multi-llm"]
+    }
+  }
+}
+```
+
+### 4. Slash Commands (optional)
+
+```bash
+cp commands/*.md ~/.claude/commands/
+```
+
+## How Routing Works
 
 ```
-> /multi-llm Should we use Redis or in-memory LRU for session cache?
-> /thinkdeep Is this WebSocket reconnection logic correct?
-> /secaudit server/routes/auth.ts
-> /precommit
-> /challenge We should migrate from Express to Fastify
+Claude Code (Opus) receives a task
+        │
+        ├─ Complex reasoning? → Claude handles it directly
+        ├─ Simple subtask?    → calls `ask` MCP tool
+        │                           │
+        │                     Router classifies prompt:
+        │                     ┌──────────────────────────────────┐
+        │                     │ BASIC:    translate, format, JSON │ → Gemini Flash-Lite ($0.10/M)
+        │                     │ STANDARD: Q&A, explain, write    │ → GPT-4.1-mini ($0.40/M)
+        │                     │ ADVANCED: review, debug, security│ → Gemini Flash ($0.15/M)
+        │                     │ FRONTIER: deep reasoning, novel  │ → o3-mini ($1.10/M)
+        │                     └──────────────────────────────────┘
+        │
+        └─ Need cross-validation? → /multi-llm (spawns CLI agents)
 ```
 
-### Auto-routing (with plugin installed)
+## Model Pricing (v1)
 
-The `analysis-router` skill automatically detects task complexity and applies the right methodology. For Tier 3 (multi-LLM), it will always ask before spawning external CLIs.
+| Model | Provider | Tier | Input $/M | Output $/M |
+|-------|----------|------|-----------|------------|
+| Gemini 2.5 Flash-Lite | Google | STANDARD | $0.10 | $0.40 |
+| Gemini 2.5 Flash | Google | ADVANCED | $0.15 | $0.60 |
+| GPT-4.1 Mini | OpenAI | STANDARD | $0.40 | $1.60 |
+| GPT-4.1 | OpenAI | ADVANCED | $2.00 | $8.00 |
+| Gemini 2.5 Pro | Google | ADVANCED | $2.50 | $10.00 |
+| o3-mini | OpenAI | FRONTIER | $1.10 | $4.40 |
+| GPT-5 | OpenAI | FRONTIER | $2.50 | $15.00 |
+| **Claude Opus 4** | **Baseline** | - | **$5.00** | **$25.00** |
 
-## Architecture
-
-```
-┌─────────────────────────────────────┐
-│  Claude Code (YOU) = Judge + Player │
-│                                     │
-│  analysis-router skill auto-routes: │
-│  Tier 1 → direct answer            │
-│  Tier 2 → structured methodology   │
-│  Tier 3 → spawn external CLIs ───┐ │
-│  Tier 4 → structured debate      │ │
-└──────────────────────────────────┼─┘
-                                   │
-           ┌───────────┬───────────┼──────────┐
-           │           │           │          │
-     ┌─────▼──┐  ┌────▼───┐  ┌───▼────┐  ┌──▼─────┐
-     │ Claude │  │ Codex  │  │  Kimi  │  │ Gemini │
-     │  (You) │  │(OpenAI)│  │(Moonsh)│  │(Google)│
-     └────────┘  └────────┘  └────────┘  └────────┘
-```
+Savings: 98% on BASIC tasks, 94-97% on STANDARD, 60-96% on ADVANCED.
 
 ## Inspired By
 
-Design patterns extracted from [PAL MCP Server](https://github.com/BeehiveInnovations/pal-mcp-server) (11K+ stars):
-
-- **WorkflowTool** → confidence tracking in `/thinkdeep`, `/debug-deep`
-- **Consensus stance injection** → FOR/AGAINST/NEUTRAL in `/consensus`
-- **Challenge (no-model tool)** → pure prompt transformation in `/challenge`
-- **Clink CLI bridge** → external CLI spawning in `/multi-llm`
-- **OWASP structured checklist** → systematic audit in `/secaudit`
+- [PAL MCP Server](https://github.com/BeehiveInnovations/pal-mcp-server) — Provider abstraction, multi-model orchestration
+- [RouteLLM](https://github.com/lm-sys/RouteLLM) — Cost-aware routing research
 
 ## License
 

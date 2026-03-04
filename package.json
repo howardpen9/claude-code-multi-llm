@@ -1,0 +1,45 @@
+{
+  "name": "claude-code-multi-llm",
+  "version": "1.0.0",
+  "description": "Cost-saving LLM router for Claude Code — delegate subtasks to cheaper models via MCP",
+  "type": "module",
+  "bin": {
+    "claude-code-multi-llm": "dist/index.js"
+  },
+  "main": "dist/index.js",
+  "files": [
+    "dist/",
+    "commands/",
+    "skills/",
+    ".claude-plugin/"
+  ],
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.0",
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "openai": "^4.80.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  },
+  "author": "smartchoice",
+  "license": "MIT",
+  "keywords": [
+    "mcp",
+    "llm",
+    "router",
+    "claude-code",
+    "cost-optimization"
+  ]
+}
