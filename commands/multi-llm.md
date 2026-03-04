@@ -141,10 +141,45 @@ IMPORTANT: Launch ALL agents in a SINGLE message for true parallelism.
 | Kimi | `kimi -p "<prompt>" --print --final-message-only` | May need full path `~/.local/bin/kimi` |
 | Gemini | `gemini -p "<prompt>"` | None |
 
+## Error Handling
+
+### CLI Not Found
+If a CLI is not found in Step 1, skip it silently. Minimum 1 CLI required. If zero found:
+```
+⚠️ No external CLIs detected. Install at least one:
+  npm install -g @openai/codex    (Codex)
+  uv tool install kimi-cli        (Kimi)
+  npm install -g @google/gemini-cli (Gemini)
+```
+
+### CLI Timeout
+If an Agent does not return within 120 seconds:
+1. Note the timeout in the comparison table: `[TIMEOUT after 120s]`
+2. Continue with available results — do NOT retry
+3. Your own analysis is always available as fallback
+
+### CLI Error / Garbage Output
+If a CLI returns an error (non-zero exit) or empty/malformed output:
+1. Log the error briefly: `Codex returned error: <first 100 chars>`
+2. Mark as `[ERROR]` in comparison table
+3. Continue synthesis with remaining models
+4. Do NOT re-run the failed CLI
+
+### Partial Results
+If only 1 of 3 CLIs succeeds:
+- Still produce the full comparison table (mark failed CLIs)
+- Your own analysis fills the gap — you become both participant and fallback
+- Explicitly note: "Only N/3 external CLIs responded. Results may be less diverse."
+
+### Prompt File Cleanup
+ALWAYS clean up temp files, even if errors occur:
+```bash
+rm -f /tmp/multi-llm-prompt.txt /tmp/_ml_*.txt
+```
+
 ## Rules
-- Launch external CLIs via PARALLEL Agent calls
-- Include code context inline in the prompt
-- If a CLI fails, note it and continue
+- Launch external CLIs via PARALLEL Agent calls (single message, multiple agents)
+- Include code context inline in the prompt (external CLIs cannot read your files)
 - Highlight when another model catches something you missed
-- Clean up: `rm -f $PROMPT_FILE`
 - Timeout: 120 seconds per Agent
+- Clean up temp files ALWAYS (even on error)

@@ -1,0 +1,6 @@
+.git/
+.github/
+tests/
+OPTIMIZATION.md
+*.test.*
+.DS_Store

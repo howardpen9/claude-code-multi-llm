@@ -1,6 +1,6 @@
 {
   "name": "claude-code-multi-llm",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Cost-saving LLM router for Claude Code — delegate subtasks to cheaper models via MCP",
   "type": "module",
   "bin": {
@@ -11,7 +11,12 @@
     "dist/",
     "commands/",
     "skills/",
-    ".claude-plugin/"
+    ".claude-plugin/",
+    "bin/",
+    "LICENSE",
+    "README.md",
+    "README.zh-TW.md",
+    "CHANGELOG.md"
   ],
   "scripts": {
     "dev": "tsx src/index.ts",
@@ -19,7 +24,13 @@
     "start": "node dist/index.js",
     "test": "vitest run",
     "test:watch": "vitest",
-    "prepublishOnly": "npm run build"
+    "test:validate": "bash tests/validate-commands.sh",
+    "test:smoke": "bash tests/smoke-test.sh",
+    "test:all": "vitest run && bash tests/validate-commands.sh && bash tests/smoke-test.sh",
+    "benchmark": "bash tests/run-benchmark.sh",
+    "lint": "bash tests/validate-commands.sh",
+    "prepublishOnly": "npm run build",
+    "postinstall": "node bin/postinstall.js || true"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.0",
@@ -33,6 +44,14 @@
     "typescript": "^5.7.0",
     "vitest": "^3.0.0"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/howardpen9/claude-code-multi-llm"
+  },
+  "homepage": "https://github.com/howardpen9/claude-code-multi-llm#readme",
+  "bugs": {
+    "url": "https://github.com/howardpen9/claude-code-multi-llm/issues"
+  },
   "author": "smartchoice",
   "license": "MIT",
   "keywords": [
@@ -40,6 +59,10 @@
     "llm",
     "router",
     "claude-code",
-    "cost-optimization"
+    "cost-optimization",
+    "multi-llm",
+    "codex",
+    "kimi",
+    "gemini"
   ]
 }

@@ -23,12 +23,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **Cost tracker** with per-request JSONL logging and savings calculation vs Claude Opus baseline
 - **CLI auto-detection** for codex, gemini, kimi with non-interactive spawning
 - 23 unit tests (router classifier + cost tracker)
+- **Unit tests** (`tests/validate-commands.sh`) — 89 automated checks: YAML frontmatter validation, required sections, plugin.json integrity, skill cross-references, file hygiene
+- **Benchmark runner** (`tests/run-benchmark.sh`) — Executable token savings measurement across 5 scenarios
+- **GitHub Actions CI/CD** (`.github/workflows/ci.yml`) — validate, lint, smoke test, npm package verification, auto-publish on tags
+- **npm install support** — `bin/install.sh` (interactive installer via `npx claude-code-multi-llm`), `bin/postinstall.js`, `.npmignore`
 
 ### Changed
 
 - README restructured around three modes: CLI subscription, API router, slash commands
 - Billing comparison table added to documentation
 - Project now includes both Markdown commands (zero-code) and TypeScript MCP server
+- `/multi-llm` command — Added comprehensive error handling: CLI not found fallback, timeout handling (120s), garbage output recovery, partial results synthesis, guaranteed temp file cleanup
 
 ## [1.1.0] - 2026-03-04
 
