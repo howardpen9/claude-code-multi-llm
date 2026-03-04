@@ -1,8 +1,14 @@
 # Multi-LLM Toolkit for Claude Code
 
+[![npm version](https://img.shields.io/npm/v/claude-code-multi-llm)](https://www.npmjs.com/package/claude-code-multi-llm)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+[![Node.js](https://img.shields.io/badge/node-%3E%3D18-green.svg)](https://nodejs.org/)
+
 **English** | [繁體中文](./README.zh-TW.md)
 
-Save tokens by routing subtasks to cheaper models. Claude Code stays as the top-level brain — simple tasks get delegated to Gemini Flash-Lite ($0.10/M) or GPT-4.1-mini ($0.40/M) instead of using Opus ($25/M output) for everything.
+A **MCP server** for Claude Code that saves tokens by routing subtasks to cheaper models. Claude Code stays as the top-level brain — simple tasks get delegated to Gemini Flash-Lite ($0.10/M) or GPT-4.1-mini ($0.40/M) instead of using Opus ($25/M output) for everything.
+
+> For developers who already use Claude Code and want to cut 60-98% of token costs on routine subtasks.
 
 ## Three Modes
 
@@ -46,23 +52,23 @@ Use your existing ChatGPT Pro / Google AI Studio / Kimi subscriptions — **zero
 
 ## When to Use What
 
-```
-Have a subscription (ChatGPT Pro, Google AI Studio)?
-  → cli_ask (FREE, uses subscription credits)
-
-No subscription, but have API keys?
-  → ask (auto-routes to cheapest API model, pay-per-token)
-
-Need cross-validation from multiple models?
-  → multi_ask (API, parallel) or /multi-llm (CLI, parallel)
-```
+| Your Task | Recommended Tool | Cost |
+|-----------|-----------------|------|
+| Translate / summarize / format | `cli_ask` (subscription) or `ask` | $0 or ~$0.001 |
+| Explain code / simple Q&A | `ask` | ~$0.001 |
+| Code review / debug analysis | `ask` (tier: advanced) | ~$0.005 |
+| Architecture decision / trade-offs | `multi_ask` (2-3 models) | ~$0.01 |
+| Cross-validate with CLI models | `/multi-llm` | $0 (subscription) |
+| Pre-commit validation | `/precommit` | Claude handles directly |
+| Security audit | `/secaudit` | Claude handles directly |
+| Deep reasoning / novel problems | Claude Opus directly | — |
 
 ## Setup
 
 ### 1. Install
 
 ```bash
-git clone https://github.com/<your-username>/claude-code-multi-llm.git
+git clone https://github.com/howardpen9/claude-code-multi-llm.git
 cd claude-code-multi-llm
 npm install && npm run build
 ```
@@ -224,6 +230,20 @@ You (to Claude Code): /secaudit
 → For specific vulnerability checks, delegates to ask(tier: "advanced")
 → Claude synthesizes findings into a prioritized report
 ```
+
+## FAQ
+
+**Q: Does this replace Claude Code?**
+A: No. Claude is always the top-level brain. This toolkit just lets Claude delegate simple subtasks to cheaper models.
+
+**Q: Is `cli_ask` really free?**
+A: Yes — it spawns CLI tools (codex/gemini/kimi) that use your existing subscriptions (ChatGPT Pro, Google AI Studio, etc). No API credits consumed.
+
+**Q: Are my API keys safe?**
+A: Keys stay local. The MCP server runs as a local process — nothing is sent to external servers beyond the LLM API calls themselves.
+
+**Q: Can I use this without any API keys?**
+A: Yes — install CLI tools and use `cli_ask` / `/multi-llm` with subscription credits only. API keys are only needed for `ask` / `multi_ask`.
 
 ## Inspired By
 
