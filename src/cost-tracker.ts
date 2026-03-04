@@ -28,6 +28,8 @@ export class CostTracker {
     model: ModelDef
     usage: TokenUsage
     latencyMs: number
+    classifiedTier?: string
+    promptExcerpt?: string
   }): CostEntry {
     const costUsd = this.calculateCost(
       params.model.inputPricePer1M,
@@ -45,6 +47,8 @@ export class CostTracker {
       toolName: params.toolName,
       model: params.model.id,
       tier: params.model.tier,
+      ...(params.classifiedTier && { classifiedTier: params.classifiedTier as any }),
+      ...(params.promptExcerpt && { promptExcerpt: params.promptExcerpt.slice(0, 100) }),
       usage: params.usage,
       costUsd: round(costUsd, 8),
       baselineCostUsd: round(baselineCostUsd, 8),

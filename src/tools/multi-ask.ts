@@ -78,6 +78,7 @@ Faster and cheaper than /multi-llm (which spawns CLI subprocesses). Default: aut
               model,
               usage: result.usage,
               latencyMs: result.latencyMs,
+              promptExcerpt: prompt,
             })
 
             return {

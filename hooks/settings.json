@@ -1,0 +1,26 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "mcp__multi-llm__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "mkdir -p ~/.llm-router && jq -c '{ts: (now|todate), event: \"pre\", session: .session_id, tool: .tool_name, prompt_excerpt: (.tool_input.prompt // \"\" | .[0:150])}' >> ~/.llm-router/hooks-log.jsonl"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "mcp__multi-llm__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -c '{ts: (now|todate), event: \"post\", session: .session_id, tool: .tool_name}' >> ~/.llm-router/hooks-log.jsonl"
+          }
+        ]
+      }
+    ]
+  }
+}

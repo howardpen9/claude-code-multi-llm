@@ -84,11 +84,14 @@ Returns the response plus cost metadata showing how much was saved vs using Clau
         })
 
         // 3. Track cost
+        const classifiedTier = tier ? (tier as string) : classifyTask(prompt)
         const entry = costTracker.record({
           toolName: 'ask',
           model: selectedModel,
           usage: result.usage,
           latencyMs: result.latencyMs,
+          classifiedTier: typeof classifiedTier === 'string' ? classifiedTier : classifiedTier,
+          promptExcerpt: prompt,
         })
 
         // 4. Return

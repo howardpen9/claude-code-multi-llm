@@ -27,6 +27,7 @@
     "test:validate": "bash tests/validate-commands.sh",
     "test:smoke": "bash tests/smoke-test.sh",
     "test:all": "vitest run && bash tests/validate-commands.sh && bash tests/smoke-test.sh",
+    "analyze": "tsx src/analyze.ts",
     "benchmark": "bash tests/run-benchmark.sh",
     "lint": "bash tests/validate-commands.sh",
     "typecheck": "tsc --noEmit",

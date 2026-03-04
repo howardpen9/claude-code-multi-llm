@@ -78,6 +78,8 @@ export interface CostEntry {
   toolName: string
   model: string
   tier: QualityTier
+  classifiedTier?: QualityTier // tier assigned by router (before model selection)
+  promptExcerpt?: string // first 100 chars of prompt for analysis
   usage: TokenUsage
   costUsd: number
   baselineCostUsd: number
