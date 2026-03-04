@@ -1,7 +1,7 @@
 ---
 name: analysis-router
 description: This skill should be used when the user asks to "review code", "analyze architecture", "debug a bug", "audit security", "make a technical decision", "compare approaches", "plan a feature", or when the task involves code quality assessment, architectural trade-offs, security concerns, or complex debugging. It determines the right analysis depth and whether cross-model verification is needed.
-version: 2.0.0
+version: 2026.3.4
 ---
 
 # Analysis Router

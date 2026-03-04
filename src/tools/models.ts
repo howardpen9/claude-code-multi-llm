@@ -7,7 +7,7 @@ const TIER_VALUES = ['basic', 'standard', 'advanced', 'frontier'] as const
 export function registerModelsTool(server: McpServer, registry: ProviderRegistry) {
   server.tool(
     'list_models',
-    'List all available LLM models with pricing. Shows which models are configured and their cost per million tokens. Use to understand routing options and compare costs.',
+    'List all available LLM models with pricing, sorted by cost (cheapest first). Shows which providers are configured, cost per million tokens, and quality tiers. Useful for deciding which model to force via ask(model: "...") or understanding why the router picked a specific model.',
     {
       tier: z.enum(TIER_VALUES).optional().describe('Filter by minimum quality tier'),
       provider: z.enum(['openai', 'google']).optional().describe('Filter by provider'),

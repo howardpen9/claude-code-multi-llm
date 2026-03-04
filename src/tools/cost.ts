@@ -5,9 +5,9 @@ import type { CostTracker } from '../cost-tracker.js'
 export function registerCostTool(server: McpServer, costTracker: CostTracker) {
   server.tool(
     'cost_report',
-    `Show spending analytics and savings. Compares actual cost of routed requests vs what they would have cost using Claude Opus 4 ($5/$25 per M tokens).
+    `Show spending analytics: total cost, per-model breakdown, and how much was saved vs using Claude Opus 4 ($5/$25 per M tokens) for everything.
 
-Use periodically to see how much money the router is saving.`,
+Example output: "Actual: $0.003, Opus baseline: $0.15, Saved: $0.147 (98%)". Use after several ask/multi_ask calls to see cumulative savings.`,
     {
       period: z
         .enum(['session', 'today', 'all'])

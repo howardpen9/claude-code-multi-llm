@@ -18,7 +18,7 @@ const costTracker = new CostTracker(config.costLogPath)
 
 const server = new McpServer({
   name: 'claude-code-multi-llm',
-  version: '1.0.0',
+  version: '2026.3.4',
 })
 
 // Register all tools

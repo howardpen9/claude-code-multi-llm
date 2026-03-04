@@ -169,6 +169,62 @@ Claude Code (Opus) receives a task
 
 API mode savings: 98% on BASIC tasks, 94-97% on STANDARD, 60-96% on ADVANCED.
 
+## Practical Examples
+
+### Example 1: Translate docs with subscription credits (FREE)
+
+You're working on a project and need to translate a README to Japanese:
+
+```
+You (to Claude Code): translate this README to Japanese
+
+Claude Code thinks: "Translation is a Tier 0 task — delegate to cheaper model"
+Claude Code calls: cli_ask(prompt: "Translate to Japanese: ...", cli: "gemini")
+
+→ Gemini CLI runs using your Google AI Studio subscription
+→ Cost: $0 (subscription credits)
+→ Saved: ~$0.50 worth of Opus tokens
+```
+
+### Example 2: Auto-route a simple question (API mode)
+
+```
+You (to Claude Code): what's the difference between useEffect and useLayoutEffect?
+
+Claude Code thinks: "Simple Q&A, doesn't need my codebase context"
+Claude Code calls: ask(prompt: "Explain useEffect vs useLayoutEffect in React")
+
+→ Router classifies as STANDARD tier
+→ Routes to Gemini Flash-Lite ($0.10/M) — cheapest available
+→ Returns answer + meta: { saved_percent: 97.8% }
+```
+
+### Example 3: Cross-validate an architecture decision
+
+```
+You (to Claude Code): should we use Redis or PostgreSQL for our session store?
+
+Claude Code thinks: "Architecture decision with trade-offs — Tier 3"
+Claude Code asks: "Want me to cross-check with other models?"
+You: yes, use multi_ask
+
+Claude Code calls: multi_ask(prompt: "Compare Redis vs PostgreSQL for session storage...")
+
+→ Queries Gemini Flash + GPT-4.1-mini in parallel
+→ Returns 2 perspectives + cost summary
+→ Claude synthesizes a final recommendation
+```
+
+### Example 4: Security audit with deep analysis
+
+```
+You (to Claude Code): /secaudit
+
+→ Claude Code runs OWASP Top 10 audit (Tier 2, structured methodology)
+→ For specific vulnerability checks, delegates to ask(tier: "advanced")
+→ Claude synthesizes findings into a prioritized report
+```
+
 ## Inspired By
 
 - [PAL MCP Server](https://github.com/BeehiveInnovations/pal-mcp-server) — Provider abstraction, multi-model orchestration

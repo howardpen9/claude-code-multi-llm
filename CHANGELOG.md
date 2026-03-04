@@ -2,9 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions use date-based numbering (YYYY.M.D).
 
-## [2.0.0] - 2026-03-04
+## [2026.3.4] - 2026-03-04
+
+### Changed
+
+- **Date-based versioning** — switched from semver (2.0.0) to date format (2026.3.4) across all files
+- **Practical examples in README** — 4 real-world workflow scenarios (translate, auto-route, cross-validate, security audit)
+- **Improved MCP tool descriptions** — `multi_ask`, `list_models`, `route_explain`, `cost_report` now include "when to use" guidance and example outputs
+- **Better .env.example** — added "Getting Started" section, clarified BASELINE_MODEL purpose
 
 ### Added
 
@@ -35,7 +42,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Project now includes both Markdown commands (zero-code) and TypeScript MCP server
 - `/multi-llm` command — Added comprehensive error handling: CLI not found fallback, timeout handling (120s), garbage output recovery, partial results synthesis, guaranteed temp file cleanup
 
-## [1.1.0] - 2026-03-04
+## [2026.3.4-rc1] - 2026-03-04
 
 ### Added
 
@@ -47,7 +54,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - `README.md` — Added language switcher link (English | 繁體中文)
 
-## [1.0.0] - 2026-03-03
+## [2026.3.3] - 2026-03-03
 
 ### Added
 

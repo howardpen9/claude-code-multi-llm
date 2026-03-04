@@ -11,7 +11,7 @@ export function registerExplainTool(
 ) {
   server.tool(
     'route_explain',
-    'Debug tool: explain how the router would classify and route a given prompt. Shows the assigned quality tier, selected model, reasoning, and alternative models with their costs. No LLM call is made.',
+    'Debug routing decisions without making any LLM call. Shows which quality tier the router assigns to a prompt, which model would be selected, why, and what alternatives exist. Use when a routed answer seems wrong or to understand cost-optimization choices before calling ask.',
     {
       prompt: z.string().describe('The prompt to analyze'),
     },

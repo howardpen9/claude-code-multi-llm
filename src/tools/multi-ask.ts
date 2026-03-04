@@ -10,9 +10,11 @@ export function registerMultiAskTool(
 ) {
   server.tool(
     'multi_ask',
-    `Send the same prompt to multiple LLMs in parallel and compare their responses. Faster and cheaper than /multi-llm (which spawns CLI subprocesses).
+    `Send the same prompt to multiple LLMs in parallel and compare their responses.
 
-Use for cross-validation: get 2-3 perspectives on architecture decisions, debugging hypotheses, or code review findings.`,
+When to use: architecture decisions ("Redis vs PostgreSQL?"), validating security assumptions, comparing debugging hypotheses, or any question where 2-3 perspectives reduce risk.
+
+Faster and cheaper than /multi-llm (which spawns CLI subprocesses). Default: auto-picks the cheapest model from each configured provider.`,
     {
       prompt: z.string().describe('The prompt to send to all models'),
       models: z

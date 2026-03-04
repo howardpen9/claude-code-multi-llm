@@ -1,6 +1,6 @@
 {
   "name": "claude-code-multi-llm",
-  "version": "2.0.0",
+  "version": "2026.3.4",
   "description": "Cost-saving LLM router for Claude Code — delegate subtasks to cheaper models via MCP",
   "type": "module",
   "bin": {
