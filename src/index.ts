@@ -10,6 +10,7 @@ import { registerModelsTool } from './tools/models.js'
 import { registerCostTool } from './tools/cost.js'
 import { registerExplainTool } from './tools/explain.js'
 import { registerConfigureTool } from './tools/configure.js'
+import { registerCLIAskTool } from './tools/cli-ask.js'
 
 const config = loadConfig()
 const registry = new ProviderRegistry(config)
@@ -27,6 +28,7 @@ registerModelsTool(server, registry)
 registerCostTool(server, costTracker)
 registerExplainTool(server, registry, config)
 registerConfigureTool(server, config)
+registerCLIAskTool(server, costTracker)
 
 // Start
 const transport = new StdioServerTransport()

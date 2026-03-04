@@ -4,6 +4,32 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.0.0] - 2026-03-04
+
+### Added
+
+- **TypeScript MCP server** — cost-aware LLM router that runs alongside existing slash commands
+- **CLI subscription mode** (`cli_ask`, `cli_status`) — spawn Codex/Gemini/Kimi CLIs to use
+  subscription credits (ChatGPT Pro, Google AI Studio, etc.) instead of API pay-per-token billing
+- **API router mode** — 6 MCP tools for pay-per-token usage with automatic cheapest-model routing:
+  - `ask` — delegate prompts to cheapest capable model
+  - `multi_ask` — query multiple models in parallel
+  - `list_models` — show available models with pricing
+  - `cost_report` — spending analytics + savings vs Opus baseline
+  - `route_explain` — debug routing decisions without calling any LLM
+  - `configure` — adjust router settings for current session
+- **Rule-based task classifier** (4 quality tiers: BASIC → STANDARD → ADVANCED → FRONTIER)
+- **Provider support**: OpenAI (GPT-5, GPT-4.1, o3-mini) + Google (Gemini 2.5 Pro/Flash/Flash-Lite)
+- **Cost tracker** with per-request JSONL logging and savings calculation vs Claude Opus baseline
+- **CLI auto-detection** for codex, gemini, kimi with non-interactive spawning
+- 23 unit tests (router classifier + cost tracker)
+
+### Changed
+
+- README restructured around three modes: CLI subscription, API router, slash commands
+- Billing comparison table added to documentation
+- Project now includes both Markdown commands (zero-code) and TypeScript MCP server
+
 ## [1.1.0] - 2026-03-04
 
 ### Added
