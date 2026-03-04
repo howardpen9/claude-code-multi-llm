@@ -1,5 +1,7 @@
 # Multi-LLM Toolkit for Claude Code
 
+**English** | [繁體中文](./README.zh-TW.md)
+
 A Claude Code plugin that adds multi-LLM cross-checking and structured analysis commands. Spawn Codex (OpenAI), Kimi (Moonshot), and Gemini (Google) CLIs in parallel, then compare perspectives.
 
 ## What's Inside
