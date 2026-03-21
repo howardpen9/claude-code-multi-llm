@@ -6,110 +6,78 @@
 
 **English** | [繁體中文](./README.zh-TW.md)
 
-A **MCP server** for Claude Code that saves tokens by routing subtasks to cheaper models. Claude Code stays as the top-level brain — simple tasks get delegated to Gemini Flash-Lite ($0.10/M) or GPT-4.1-mini ($0.40/M) instead of using Opus ($25/M output) for everything.
+An MCP server that lets Claude Code delegate routine subtasks to cheaper models. Claude stays the brain — grunt work goes to Gemini Flash-Lite ($0.10/M) or GPT-4.1-mini ($0.40/M) instead of Opus ($25/M).
 
-> For developers who already use Claude Code and want to cut 60-98% of token costs on routine subtasks.
+> Cut 60-98% of token costs on routine subtasks without leaving Claude Code.
 
 ## Three Modes
 
-### 1. CLI Subscription Mode (free if you have a subscription)
+### 1. CLI Subscription Mode (free)
 
-Use your existing ChatGPT Pro / Google AI Studio / Kimi subscriptions — **zero extra cost**:
-
-| Tool | Description |
-|------|-------------|
-| `cli_ask` | Send prompt via installed CLI (codex/gemini/kimi) using subscription credits |
-| `cli_status` | Check which CLIs are installed and available |
-
-### 2. API Router Mode (pay-per-token, auto-routed to cheapest)
-
-6 MCP tools that call LLM APIs directly — costs per-token but auto-picks the cheapest model:
+Use existing ChatGPT Pro / Google AI Studio / Kimi subscriptions — zero extra cost.
 
 | Tool | Description |
 |------|-------------|
-| `ask` | Route a prompt to the cheapest capable API model |
-| `multi_ask` | Query multiple API models in parallel, compare responses |
-| `list_models` | Show available models with pricing |
-| `cost_report` | Spending analytics + savings vs Opus baseline |
-| `route_explain` | Debug: explain routing decision without calling any LLM |
-| `configure` | Adjust router settings for this session |
+| `cli_ask` | Send prompt via installed CLI using subscription credits |
+| `cli_status` | Check which CLIs are available |
 
-### 3. Slash Commands (deep analysis + cross-checking)
+### 2. API Router Mode (pay-per-token)
 
-9 commands for structured analysis and multi-LLM cross-checking:
+Auto-routes to the cheapest capable model:
+
+| Tool | Description |
+|------|-------------|
+| `ask` | Route prompt to cheapest API model |
+| `multi_ask` | Query multiple models in parallel |
+| `cost_report` | Spending analytics vs Opus baseline |
+| `route_explain` | Debug routing decisions |
+| `list_models` | Available models + pricing |
+| `configure` | Adjust router settings |
+
+### 3. Slash Commands (deep analysis)
 
 | Command | Description |
 |---------|-------------|
-| `/multi-llm` | Parallel multi-LLM analysis — spawn Codex, Kimi, Gemini CLIs |
+| `/multi-llm` | Parallel multi-LLM cross-check via CLIs |
 | `/thinkdeep` | Deep reasoning with confidence tracking |
-| `/consensus` | Multi-perspective debate (FOR / AGAINST / NEUTRAL) |
-| `/precommit` | Pre-commit review of staged changes |
+| `/consensus` | Multi-perspective debate |
+| `/precommit` | Pre-commit review |
 | `/secaudit` | OWASP Top 10 security audit |
-| `/debug-deep` | Systematic root-cause analysis with hypothesis tracking |
-| `/planner` | Task decomposition into implementation plan |
-| `/challenge` | Devil's advocate — challenge assumptions |
-| `/apilookup` | Version-aware API/SDK documentation lookup |
+| `/debug-deep` | Root-cause analysis |
+| `/planner` | Task decomposition |
+| `/challenge` | Devil's advocate |
+| `/apilookup` | API/SDK doc lookup |
 
 ## When to Use What
 
-| Your Task | Recommended Tool | Cost |
-|-----------|-----------------|------|
-| Translate / summarize / format | `cli_ask` (subscription) or `ask` | $0 or ~$0.001 |
-| Explain code / simple Q&A | `ask` | ~$0.001 |
-| Code review / debug analysis | `ask` (tier: advanced) | ~$0.005 |
-| Architecture decision / trade-offs | `multi_ask` (2-3 models) | ~$0.01 |
-| Cross-validate with CLI models | `/multi-llm` | $0 (subscription) |
-| Pre-commit validation | `/precommit` | Claude handles directly |
-| Security audit | `/secaudit` | Claude handles directly |
-| Deep reasoning / novel problems | Claude Opus directly | — |
+| Task | Tool | Cost |
+|------|------|------|
+| Translate / format / summarize | `cli_ask` or `ask` | $0 or ~$0.001 |
+| Code review / debug | `ask` (advanced) | ~$0.005 |
+| Architecture decisions | `multi_ask` | ~$0.01 |
+| Cross-validate | `/multi-llm` | $0 (subscription) |
+| Deep reasoning | Claude directly | — |
 
 ## Setup
 
-### 1. Install
-
 ```bash
+# 1. Install
 git clone https://github.com/howardpen9/claude-code-multi-llm.git
-cd claude-code-multi-llm
-npm install && npm run build
+cd claude-code-multi-llm && npm install && npm run build
+
+# 2a. CLI mode — install any CLI you have a subscription for
+npm i -g @openai/codex        # ChatGPT Pro
+npm i -g @google/gemini-cli   # Google AI Studio
+uv tool install kimi-cli       # Kimi
+
+# 2b. API mode — set keys
+cp .env.example .env  # Edit: OPENAI_API_KEY, GOOGLE_API_KEY
+
+# 3. Slash commands (optional)
+cp commands/*.md ~/.claude/commands/
 ```
 
-### 2. Configure
-
-**For CLI mode** (subscription credits) — just install the CLIs:
-
-```bash
-npm i -g @openai/codex        # ChatGPT Pro subscription
-npm i -g @google/gemini-cli   # Google AI Studio (free tier available)
-uv tool install kimi-cli       # Kimi subscription
-```
-
-**For API mode** (pay-per-token) — set API keys:
-
-```bash
-cp .env.example .env
-# Edit .env: OPENAI_API_KEY and/or GOOGLE_API_KEY
-```
-
-### 3. Connect to Claude Code
-
-Add to your project's `.mcp.json`:
-
-```json
-{
-  "mcpServers": {
-    "multi-llm": {
-      "command": "node",
-      "args": ["/path/to/claude-code-multi-llm/dist/index.js"],
-      "env": {
-        "OPENAI_API_KEY": "sk-...",
-        "GOOGLE_API_KEY": "AI..."
-      }
-    }
-  }
-}
-```
-
-Or use npx after publishing:
+Add to `.mcp.json`:
 
 ```json
 {
@@ -122,45 +90,27 @@ Or use npx after publishing:
 }
 ```
 
-### 4. Slash Commands (optional)
-
-```bash
-cp commands/*.md ~/.claude/commands/
-```
-
 ## How Routing Works
 
 ```
 Claude Code (Opus) receives a task
         │
-        ├─ Complex reasoning? → Claude handles it directly
+        ├─ Complex reasoning? → Claude handles directly
         │
-        ├─ Simple subtask + has CLI subscription?
-        │     → cli_ask (FREE, uses subscription credits)
+        ├─ Simple + CLI subscription? → cli_ask (FREE)
         │
-        ├─ Simple subtask + API keys only?
-        │     → ask (auto-routes to cheapest API model)
-        │           │
-        │     Router classifies prompt:
-        │     ┌──────────────────────────────────────────────┐
-        │     │ BASIC:    translate, format, JSON             │ → Gemini Flash-Lite ($0.10/M)
-        │     │ STANDARD: Q&A, explain, write                │ → GPT-4.1-mini ($0.40/M)
-        │     │ ADVANCED: review, debug, security            │ → Gemini Flash ($0.15/M)
-        │     │ FRONTIER: deep reasoning, novel              │ → o3-mini ($1.10/M)
-        │     └──────────────────────────────────────────────┘
+        ├─ Simple + API keys? → ask (auto-route to cheapest)
+        │     ┌─────────────────────────────────────────┐
+        │     │ BASIC    → Gemini Flash-Lite  ($0.10/M) │
+        │     │ STANDARD → GPT-4.1-mini      ($0.40/M) │
+        │     │ ADVANCED → Gemini Flash       ($0.15/M) │
+        │     │ FRONTIER → o3-mini           ($1.10/M) │
+        │     └─────────────────────────────────────────┘
         │
         └─ Need cross-validation? → /multi-llm or multi_ask
 ```
 
-## Billing Comparison
-
-| Mode | Billing | Cost | Speed | Token Tracking |
-|------|---------|------|-------|----------------|
-| `cli_ask` | Subscription credits | **$0** (included) | Slower (CLI overhead) | No |
-| `ask` | API pay-per-token | $0.10–15/M | Fast (direct API) | Yes |
-| `/multi-llm` | Subscription credits | **$0** | Slowest (parallel CLI spawn) | No |
-
-## Model Pricing — API Mode (v1)
+## Model Pricing (API Mode)
 
 | Model | Provider | Tier | Input $/M | Output $/M |
 |-------|----------|------|-----------|------------|
@@ -173,126 +123,66 @@ Claude Code (Opus) receives a task
 | GPT-5 | OpenAI | FRONTIER | $2.50 | $15.00 |
 | **Claude Opus 4** | **Baseline** | - | **$5.00** | **$25.00** |
 
-API mode savings: 98% on BASIC tasks, 94-97% on STANDARD, 60-96% on ADVANCED.
-
-## Practical Examples
-
-### Example 1: Translate docs with subscription credits (FREE)
-
-You're working on a project and need to translate a README to Japanese:
-
-```
-You (to Claude Code): translate this README to Japanese
-
-Claude Code thinks: "Translation is a Tier 0 task — delegate to cheaper model"
-Claude Code calls: cli_ask(prompt: "Translate to Japanese: ...", cli: "gemini")
-
-→ Gemini CLI runs using your Google AI Studio subscription
-→ Cost: $0 (subscription credits)
-→ Saved: ~$0.50 worth of Opus tokens
-```
-
-### Example 2: Auto-route a simple question (API mode)
-
-```
-You (to Claude Code): what's the difference between useEffect and useLayoutEffect?
-
-Claude Code thinks: "Simple Q&A, doesn't need my codebase context"
-Claude Code calls: ask(prompt: "Explain useEffect vs useLayoutEffect in React")
-
-→ Router classifies as STANDARD tier
-→ Routes to Gemini Flash-Lite ($0.10/M) — cheapest available
-→ Returns answer + meta: { saved_percent: 97.8% }
-```
-
-### Example 3: Cross-validate an architecture decision
-
-```
-You (to Claude Code): should we use Redis or PostgreSQL for our session store?
-
-Claude Code thinks: "Architecture decision with trade-offs — Tier 3"
-Claude Code asks: "Want me to cross-check with other models?"
-You: yes, use multi_ask
-
-Claude Code calls: multi_ask(prompt: "Compare Redis vs PostgreSQL for session storage...")
-
-→ Queries Gemini Flash + GPT-4.1-mini in parallel
-→ Returns 2 perspectives + cost summary
-→ Claude synthesizes a final recommendation
-```
-
-### Example 4: Security audit with deep analysis
-
-```
-You (to Claude Code): /secaudit
-
-→ Claude Code runs OWASP Top 10 audit (Tier 2, structured methodology)
-→ For specific vulnerability checks, delegates to ask(tier: "advanced")
-→ Claude synthesizes findings into a prioritized report
-```
+Savings vs Opus baseline: **98%** on BASIC, **94%** on STANDARD, **60-96%** on ADVANCED.
 
 ## FAQ
 
-**Q: Does this replace Claude Code?**
-A: No. Claude is always the top-level brain. This toolkit just lets Claude delegate simple subtasks to cheaper models.
+**Does this replace Claude Code?**
+No. Claude is always the top-level brain. This just delegates cheap subtasks.
 
-**Q: Is `cli_ask` really free?**
-A: Yes — it spawns CLI tools (codex/gemini/kimi) that use your existing subscriptions (ChatGPT Pro, Google AI Studio, etc). No API credits consumed.
+**Is `cli_ask` really free?**
+Yes — it uses your existing subscriptions (ChatGPT Pro, Google AI Studio, etc).
 
-**Q: Are my API keys safe?**
-A: Keys stay local. The MCP server runs as a local process — nothing is sent to external servers beyond the LLM API calls themselves.
+**Can I use this without API keys?**
+Yes — CLI mode only needs installed CLIs + subscriptions.
 
-**Q: Can I use this without any API keys?**
-A: Yes — install CLI tools and use `cli_ask` / `/multi-llm` with subscription credits only. API keys are only needed for `ask` / `multi_ask`.
-
-## Roadmap & Open Questions
+## Roadmap
 
 ### Honest Status
 
-The current router is a **regex-based heuristic** — it matches keywords like "translate" or "debug" to guess task complexity. This works for obvious cases but has clear limitations:
+The router is a **regex-based heuristic** — keyword matching to guess task complexity. It works for obvious cases but has known limitations:
 
-- We haven't validated whether Claude Code actually follows the `analysis-router` SKILL.md instructions to delegate tasks
-- Savings numbers (60-98%) are **theoretical** — calculated from pricing math, not measured from real sessions
-- The keyword classifier can misroute: "debug this simple typo" shouldn't go to ADVANCED tier
-- We don't yet understand Claude Code's internal decision-making around MCP tool usage
+- Savings numbers (60-98%) are **theoretical**, not measured from real sessions
+- Keyword classifier can misroute (e.g., "debug this simple typo" → ADVANCED)
+- We haven't validated Claude Code's actual delegation behavior with MCP tools
 
-### Research Needed
+### TODO
 
-| Question | Why It Matters | How to Test |
-|----------|---------------|-------------|
-| Does Claude actually call `ask`/`cli_ask` when prompted by SKILL.md? | If not, the whole routing layer is unused | Log MCP tool calls across 50+ real sessions |
-| How much context does Claude send to MCP tools? | Affects actual token cost | Capture input/output token counts per call |
-| Is regex classification accurate enough? | Misroutes waste money or quality | Compare regex tier vs human-labeled tier on 200 prompts |
-| What's the real-world savings vs theoretical? | Need honest numbers, not marketing | A/B test: same tasks with and without toolkit |
-| When does Claude choose to handle directly vs delegate? | Understanding the decision boundary | Analyze session logs for delegation patterns |
+**Router Improvements**
+- [ ] Upgrade from regex to embedding-based classification (e.g., sentence-transformers or cheap LLM pre-classification via Flash-Lite)
+- [ ] Add confidence scores to routing decisions — enable fallback on low-confidence classifications
+- [ ] Multi-signal fusion — incorporate conversation history, file type, code block presence (not just prompt keywords)
+- [ ] Explore [vLLM Semantic Router](https://docs.vllm.ai/)-style signal-driven architecture as a reference for next-gen routing
+- [ ] Resolve keyword collision problem (e.g., "debug" + "simple" + "format" triggering conflicting tiers)
 
-### Planned Improvements
-
-**Short-term (v2026.4)**
+**Measurement & Validation**
 - [ ] Session-level token logging — capture actual MCP tool call frequency and token counts
 - [ ] Real-world benchmark suite — 20 common dev tasks, measure actual vs baseline cost
-- [ ] Smarter classifier — consider using a cheap LLM (Flash-Lite) to classify instead of regex
-- [ ] Provider expansion — DeepSeek, Mistral
+- [ ] A/B measurement framework — same prompts with/without toolkit, compare cost + quality
+- [ ] Claude Code behavior study — when does Claude actually choose to delegate vs handle directly?
 
-**Medium-term**
-- [ ] A/B measurement framework — run same prompts with/without toolkit, compare cost + quality
-- [ ] Claude Code behavior study — understand when/why Claude decides to use MCP tools
-- [ ] Adaptive routing — learn from past requests which model performs best per task type
-- [ ] Quality scoring — not just cheapest, but cheapest-that-meets-quality-threshold
+**Provider & Model Expansion**
+- [ ] Add DeepSeek, Mistral, Qwen providers
+- [ ] Support local models via Ollama for zero-cost offline routing
+- [ ] Auto-update pricing from provider APIs instead of hardcoded values
 
-**Long-term vision**
-- [ ] Self-improving router — use cost_report data to retrain routing decisions
+**Architecture**
+- [ ] Adaptive routing — learn from `cost_report` data which model performs best per task type
 - [ ] Multi-turn context awareness — route based on conversation state, not just single prompt
-- [ ] Community benchmarks — shared dataset of task → model → quality scores
+- [ ] Quality scoring — cheapest model that meets a quality threshold, not just cheapest overall
+- [ ] Skill-based mode as alternative to MCP — zero token overhead when not in use
+
+**Community**
+- [ ] Shared benchmark dataset — task + model + quality scores from real usage
+- [ ] Plugin system for custom routing rules
+- [ ] Dashboard UI for cost analytics
 
 ### Contributing
 
-The biggest help right now is **real-world usage data**. If you use this toolkit, we'd love to know:
-- Which tools you actually use most (`cli_ask`? `ask`? slash commands?)
+The biggest help right now is **real-world usage data**:
+- Which tools you actually use most
 - Cases where routing made the wrong choice
-- Your actual savings numbers from `cost_report`
-
-Open an issue or PR at [github.com/howardpen9/claude-code-multi-llm](https://github.com/howardpen9/claude-code-multi-llm).
+- Your actual savings from `cost_report`
 
 ## Inspired By
 
