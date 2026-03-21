@@ -61,6 +61,20 @@ export const CLI_REGISTRY: CLIDef[] = [
   },
 ]
 
+// Only pass safe env vars to spawned CLIs to prevent leaking API keys/secrets
+const SAFE_ENV_KEYS = [
+  'PATH', 'HOME', 'USER', 'SHELL', 'TERM', 'LANG', 'LC_ALL',
+  'TMPDIR', 'XDG_CONFIG_HOME', 'XDG_DATA_HOME', 'KIMI_BIN',
+]
+
+function getSafeEnv(): Record<string, string> {
+  const env: Record<string, string> = { NO_COLOR: '1' }
+  for (const key of SAFE_ENV_KEYS) {
+    if (process.env[key]) env[key] = process.env[key]!
+  }
+  return env
+}
+
 /** Check which CLIs are installed */
 export async function detectAvailableCLIs(): Promise<CLIDef[]> {
   const results = await Promise.allSettled(
@@ -88,7 +102,7 @@ export function spawnCLI(
     const proc = spawn(cmd, cmdArgs, {
       stdio: ['pipe', 'pipe', 'pipe'],
       timeout: cli.timeoutMs,
-      env: { ...process.env, NO_COLOR: '1' }, // disable color codes in output
+      env: getSafeEnv(), // filtered env to prevent leaking secrets
     })
 
     let stdout = ''

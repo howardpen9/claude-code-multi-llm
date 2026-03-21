@@ -3,7 +3,7 @@ import { z } from 'zod'
 import type { ProviderRegistry } from '../providers/registry.js'
 import type { CostTracker } from '../cost-tracker.js'
 import type { AppConfig } from '../types.js'
-import { QualityTier } from '../types.js'
+import { QualityTier, tierIndex } from '../types.js'
 import { classifyTask, selectModel } from '../router.js'
 
 const TIER_VALUES = ['basic', 'standard', 'advanced', 'frontier'] as const
@@ -39,25 +39,30 @@ Returns the response plus cost metadata showing how much was saved vs using Clau
     },
     async ({ prompt, model, tier, system_prompt, temperature, max_tokens }) => {
       try {
-        // 1. Resolve model
+        // 1. Resolve model — explicit param > config default > auto-route
         let selectedModel
-        if (model) {
-          selectedModel = registry.findModel(model)
+        const effectiveModel = model || config.defaultModel
+        if (effectiveModel) {
+          selectedModel = registry.findModel(effectiveModel)
           if (!selectedModel) {
             const available = registry.getAllModels().map((m) => m.id).join(', ')
             return {
-              content: [{ type: 'text' as const, text: `Model "${model}" not found. Available: ${available}` }],
+              content: [{ type: 'text' as const, text: `Model "${effectiveModel}" not found. Available: ${available}` }],
               isError: true,
             }
           }
         } else {
-          const qualityTier = tier ? (tier as QualityTier) : classifyTask(prompt)
+          // Use explicit tier > max(config defaultTier, auto-classify)
+          const autoTier = classifyTask(prompt)
+          const qualityTier = tier
+            ? (tier as QualityTier)
+            : tierIndex(config.defaultTier) > tierIndex(autoTier)
+              ? config.defaultTier
+              : autoTier
           const candidates = registry.getModelsForTier(qualityTier)
           const decision = selectModel(candidates, {
             preferredProvider: config.preferredProvider,
-            maxBudgetPer1MInput: config.maxBudgetPerRequestUsd
-              ? config.maxBudgetPerRequestUsd * 1_000_000
-              : undefined,
+            maxBudgetPer1MInput: config.maxBudgetPerRequestUsd,
           })
           if (!decision) {
             return {

@@ -5,14 +5,14 @@ import type { CostTracker } from '../cost-tracker.js'
 export function registerCostTool(server: McpServer, costTracker: CostTracker) {
   server.tool(
     'cost_report',
-    `Show spending analytics: total cost, per-model breakdown, and how much was saved vs using Claude Opus 4 ($5/$25 per M tokens) for everything.
+    `Show spending analytics: total cost, per-model breakdown, and how much was saved vs using Claude Opus 4 ($15/$75 per M tokens) for everything.
 
 Example output: "Actual: $0.003, Opus baseline: $0.15, Saved: $0.147 (98%)". Use after several ask/multi_ask calls to see cumulative savings.`,
     {
       period: z
         .enum(['session', 'today', 'all'])
         .optional()
-        .describe('Time period. session: current MCP session. today: last 24h. all: everything.'),
+        .describe('Time period. session: current MCP session only. today: last 24h (session only). all: current session (historical logs not loaded on startup).'),
     },
     async ({ period }) => {
       const count = costTracker.getEntryCount()

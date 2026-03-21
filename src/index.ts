@@ -14,7 +14,7 @@ import { registerCLIAskTool } from './tools/cli-ask.js'
 
 const config = loadConfig()
 const registry = new ProviderRegistry(config)
-const costTracker = new CostTracker(config.costLogPath)
+const costTracker = new CostTracker(config.costLogPath, config.disablePromptLogging)
 
 const server = new McpServer({
   name: 'claude-code-multi-llm',

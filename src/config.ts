@@ -14,6 +14,7 @@ const ConfigSchema = z.object({
   PREFERRED_PROVIDER: z.enum(['openai', 'google']).optional(),
   COST_LOG_PATH: z.string().optional(),
   BASELINE_MODEL: z.string().optional(),
+  DISABLE_PROMPT_LOGGING: z.enum(['true', 'false', '1', '0']).optional(),
 })
 
 export function loadConfig(): AppConfig {
@@ -39,6 +40,7 @@ export function loadConfig(): AppConfig {
     preferredProvider: parsed.PREFERRED_PROVIDER as ProviderName | undefined,
     costLogPath: parsed.COST_LOG_PATH || defaultLogPath,
     baselineModel: parsed.BASELINE_MODEL || 'claude-opus-4',
+    disablePromptLogging: parsed.DISABLE_PROMPT_LOGGING === 'true' || parsed.DISABLE_PROMPT_LOGGING === '1',
     providers: {
       openai: hasOpenAI ? { apiKey: parsed.OPENAI_API_KEY! } : undefined,
       google: hasGoogle ? { apiKey: parsed.GOOGLE_API_KEY! } : undefined,

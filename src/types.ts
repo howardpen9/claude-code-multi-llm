@@ -113,6 +113,7 @@ export interface AppConfig {
   preferredProvider?: ProviderName
   costLogPath: string
   baselineModel: string
+  disablePromptLogging: boolean
   providers: {
     openai?: { apiKey: string; baseUrl?: string }
     google?: { apiKey: string }

@@ -1,13 +1,13 @@
 import { type ModelDef, QualityTier } from './types.js'
 
 export const MODEL_CATALOG: ModelDef[] = [
-  // --- Google: STANDARD ---
+  // --- Google: BASIC ---
   {
     id: 'google/gemini-2.5-flash-lite',
     provider: 'google',
     modelName: 'gemini-2.5-flash-lite',
     displayName: 'Gemini 2.5 Flash-Lite',
-    tier: QualityTier.STANDARD,
+    tier: QualityTier.BASIC,
     contextWindow: 1_000_000,
     maxOutputTokens: 65_536,
     inputPricePer1M: 0.10,
@@ -113,11 +113,11 @@ export const MODEL_CATALOG: ModelDef[] = [
   },
 ]
 
-// Baseline for savings calculation (Claude Opus pricing)
+// Baseline for savings calculation (Claude Opus 4 pricing, updated 2026-03)
 export const BASELINE_PRICING = {
   id: 'claude-opus-4',
-  inputPricePer1M: 5.00,
-  outputPricePer1M: 25.00,
+  inputPricePer1M: 15.00,
+  outputPricePer1M: 75.00,
 }
 
 export function findModel(nameOrAlias: string): ModelDef | undefined {

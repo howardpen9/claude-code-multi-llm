@@ -9,10 +9,13 @@ function round(n: number, decimals: number): number {
 }
 
 export class CostTracker {
+  private static readonly MAX_ENTRIES = 10_000
   private entries: CostEntry[] = []
   private logStream: fs.WriteStream | null = null
+  private disablePromptLogging: boolean
 
-  constructor(logPath?: string) {
+  constructor(logPath?: string, disablePromptLogging = false) {
+    this.disablePromptLogging = disablePromptLogging
     if (logPath) {
       try {
         fs.mkdirSync(path.dirname(logPath), { recursive: true })
@@ -48,7 +51,9 @@ export class CostTracker {
       model: params.model.id,
       tier: params.model.tier,
       ...(params.classifiedTier && { classifiedTier: params.classifiedTier as any }),
-      ...(params.promptExcerpt && { promptExcerpt: params.promptExcerpt.slice(0, 100) }),
+      ...(!this.disablePromptLogging && params.promptExcerpt && {
+        promptExcerpt: params.promptExcerpt.slice(0, 100),
+      }),
       usage: params.usage,
       costUsd: round(costUsd, 8),
       baselineCostUsd: round(baselineCostUsd, 8),
@@ -56,6 +61,9 @@ export class CostTracker {
     }
 
     this.entries.push(entry)
+    if (this.entries.length > CostTracker.MAX_ENTRIES) {
+      this.entries = this.entries.slice(-CostTracker.MAX_ENTRIES)
+    }
     this.logStream?.write(JSON.stringify(entry) + '\n')
     return entry
   }

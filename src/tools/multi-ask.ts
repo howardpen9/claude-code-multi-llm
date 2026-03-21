@@ -2,6 +2,7 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import type { ProviderRegistry } from '../providers/registry.js'
 import type { CostTracker } from '../cost-tracker.js'
+import { classifyTask } from '../router.js'
 
 export function registerMultiAskTool(
   server: McpServer,
@@ -34,8 +35,9 @@ Faster and cheaper than /multi-llm (which spawns CLI subprocesses). Default: aut
           .filter((m) => m !== undefined)
 
         if (!targetModels || targetModels.length === 0) {
-          // Auto-pick: cheapest from each configured provider
-          const allModels = registry.getAllModels()
+          // Auto-pick: cheapest from each provider at or above classified tier
+          const qualityTier = classifyTask(prompt)
+          const allModels = registry.getModelsForTier(qualityTier)
           const byProvider = new Map<string, (typeof allModels)[0]>()
           // Sort by cost first
           const sorted = [...allModels].sort(

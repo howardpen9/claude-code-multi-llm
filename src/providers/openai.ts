@@ -43,11 +43,14 @@ export class OpenAIProvider extends BaseProvider {
       messages.push({ role: turn.role, content: turn.content })
     }
 
+    // o-series and GPT-5 models don't support temperature parameter
+    const supportsTemperature = !/^(o[1-9]|gpt-5)/.test(req.model)
+
     const response = await client.chat.completions.create({
       model: req.model,
       messages,
       ...(req.maxOutputTokens && { max_tokens: req.maxOutputTokens }),
-      ...(req.temperature !== undefined && { temperature: req.temperature }),
+      ...(supportsTemperature && req.temperature !== undefined && { temperature: req.temperature }),
     })
 
     const choice = response.choices[0]

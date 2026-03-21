@@ -28,7 +28,7 @@ describe('CostTracker', () => {
     const tracker = makeTracker()
 
     // Flash-Lite: input $0.10/M, output $0.40/M
-    // Baseline (Opus): input $5.00/M, output $25.00/M
+    // Baseline (Opus): input $15.00/M, output $75.00/M
     tracker.record({
       toolName: 'ask',
       model: flashLite,
@@ -40,11 +40,11 @@ describe('CostTracker', () => {
     expect(report.totalRequests).toBe(1)
     // Flash-Lite cost: $0.10 + $0.40 = $0.50
     expect(report.totalCostUsd).toBeCloseTo(0.5, 2)
-    // Opus baseline: $5.00 + $25.00 = $30.00
-    expect(report.totalBaselineCostUsd).toBeCloseTo(30.0, 2)
-    // Savings: $29.50 = 98.3%
-    expect(report.savingsUsd).toBeCloseTo(29.5, 1)
-    expect(report.savingsPercent).toBeGreaterThan(98)
+    // Opus baseline: $15.00 + $75.00 = $90.00
+    expect(report.totalBaselineCostUsd).toBeCloseTo(90.0, 2)
+    // Savings: $89.50 = 99.4%
+    expect(report.savingsUsd).toBeCloseTo(89.5, 1)
+    expect(report.savingsPercent).toBeGreaterThan(99)
   })
 
   it('groups by model and tool', () => {
